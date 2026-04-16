@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Testable Todo Item Card</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --text: #132033;
+        --muted: #5c6b80;
+        --border: #dbe3ee;
+        --shadow: 0 10px 30px rgba(19, 32, 51, 0.08);
+        --focus: #2563eb;
+        --work: #e8f0ff;
+        --work-text: #1d4ed8;
+        --urgent: #fff1f2;
+        --urgent-text: #be123c;
+        --design: #ecfdf5;
+        --design-text: #047857;
+        --done: #f0fdf4;
+        --done-text: #166534;
+        --pending: #fff7ed;
+        --pending-text: #c2410c;
+        --progress: #eff6ff;
+        --progress-text: #1d4ed8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: 520px;
+      }
+
+      article[data-testid="test-todo-card"] {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .card-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .complete-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        margin-top: 4px;
+      }
+
+      .complete-wrap input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        accent-color: #2563eb;
+        cursor: pointer;
+      }
+
+      .content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      h2[data-testid="test-todo-title"] {
+        margin: 0;
+        font-size: 1.2rem;
+        line-height: 1.3;
+        letter-spacing: -0.02em;
+        word-break: break-word;
+      }
+
+      .completed h2[data-testid="test-todo-title"] {
+        text-decoration: line-through;
+        color: #6b7280;
+      }
+
+      .meta-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+        align-items: center;
+      }
+
+      .badge,
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      [data-testid="test-todo-priority"] {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .priority-low {
+        background: #ecfdf5;
+        color: #047857;
+      }
+      .priority-medium {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+      .priority-high {
+        background: #fff1f2;
+        color: #be123c;
+      }
+
+      [data-testid="test-todo-status"] {
+        background: var(--pending);
+        color: var(--pending-text);
+      }
+
+      .status-done {
+        background: var(--done);
+        color: var(--done-text);
+      }
+      .status-progress {
+        background: var(--progress);
+        color: var(--progress-text);
+      }
+      .status-pending {
+        background: var(--pending);
+        color: var(--pending-text);
+      }
+
+      p[data-testid="test-todo-description"] {
+        margin: 14px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+        word-break: break-word;
+      }
+
+      .due-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        margin-top: 14px;
+        align-items: center;
+      }
+
+      time[data-testid="test-todo-due-date"],
+      .time-remaining {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .time-remaining {
+        font-weight: 600;
+      }
+
+      .time-remaining[aria-live] {
+        min-height: 1.2em;
+      }
+
+      .tags-block {
+        margin-top: 16px;
+      }
+
+      ul[data-testid="test-todo-tags"] {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      ul[data-testid="test-todo-tags"] li {
+        display: inline-flex;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #334155;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1;
+        max-width: 100%;
+        word-break: break-word;
+      }
+
+      .tag-work {
+        background: var(--work);
+        color: var(--work-text);
+      }
+      .tag-urgent {
+        background: var(--urgent);
+        color: var(--urgent-text);
+      }
+      .tag-design {
+        background: var(--design);
+        color: var(--design-text);
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+        border-radius: 12px;
+        padding: 10px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.12s ease, border-color 0.12s ease,
+          box-shadow 0.12s ease, background 0.12s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(19, 32, 51, 0.08);
+      }
+
+      button:focus-visible,
+      input[type="checkbox"]:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--focus) 25%, white);
+        outline-offset: 3px;
+      }
+
+      .edit-btn {
+        border-color: #cbd5e1;
+      }
+
+      .delete-btn {
+        border-color: #fecaca;
+        color: #b91c1c;
+      }
+
+      .delete-btn:hover {
+        background: #fff1f2;
+      }
+
+      .helper-note {
+        margin-top: 14px;
+        color: #6b7280;
+        font-size: 0.88rem;
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 12px;
+          place-items: start center;
+        }
+
+        article[data-testid="test-todo-card"] {
+          padding: 16px;
+          border-radius: 18px;
+        }
+
+        h2[data-testid="test-todo-title"] {
+          font-size: 1.08rem;
+        }
+
+        .actions button {
+          flex: 1 1 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <article
+        data-testid="test-todo-card"
+        id="todo-card"
+        aria-labelledby="todo-title"
+      >
+        <div class="card-top">
+          <div class="complete-wrap">
+            <input
+              id="complete-toggle"
+              data-testid="test-todo-complete-toggle"
+              type="checkbox"
+              aria-label="Mark task as complete"
+            />
+          </div>
+
+          <div class="content" id="task-content">
+            <div class="title-row">
+              <h2 data-testid="test-todo-title" id="todo-title">
+                Design homepage hero section
+              </h2>
+            </div>
+
+            <div class="meta-line" aria-label="Task priority and status">
+              <span
+                data-testid="test-todo-priority"
+                class="badge priority-high"
+                aria-label="Priority High"
+              >
+                High
+              </span>
+              <span
+                data-testid="test-todo-status"
+                class="status-badge status-pending"
+                aria-label="Status Pending"
+                id="status-badge"
+              >
+                Pending
+              </span>
+            </div>
+
+            <p data-testid="test-todo-description">
+              Create a clean hero area with a clear headline, supporting text,
+              and a strong call-to-action button. Keep spacing balanced and make
+              sure the layout looks good on mobile and desktop.
+            </p>
+
+            <div class="due-row">
+              <time
+                data-testid="test-todo-due-date"
+                id="due-date"
+                datetime="2026-04-16T18:00:00Z"
+              >
+                Due Apr 16, 2026
+              </time>
+              <span
+                data-testid="test-todo-time-remaining"
+                class="time-remaining"
+                id="time-remaining"
+                aria-live="polite"
+              >
+                Loading time remaining...
+              </span>
+            </div>
+
+            <section class="tags-block" aria-label="Task tags">
+              <ul data-testid="test-todo-tags" role="list">
+                <li>
+                  <span class="tag tag-work" data-testid="test-todo-tag-work"
+                    >work</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="tag tag-urgent"
+                    data-testid="test-todo-tag-urgent"
+                    >urgent</span
+                  >
+                </li>
+                <li>
+                  <span
+                    class="tag tag-design"
+                    data-testid="test-todo-tag-design"
+                    >design</span
+                  >
+                </li>
+              </ul>
+            </section>
+
+            <div class="actions" aria-label="Task actions">
+              <button
+                type="button"
+                class="edit-btn"
+                data-testid="test-todo-edit-button"
+                id="edit-button"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="delete-btn"
+                data-testid="test-todo-delete-button"
+                id="delete-button"
+              >
+                Delete
+              </button>
+            </div>
+
+            <div class="helper-note">Tab order: checkbox → edit → delete.</div>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <script>
+      (function () {
+        const card = document.getElementById("todo-card");
+        const toggle = document.getElementById("complete-toggle");
+        const statusBadge = document.getElementById("status-badge");
+        const dueDateEl = document.getElementById("due-date");
+        const timeRemainingEl = document.getElementById("time-remaining");
+        const editButton = document.getElementById("edit-button");
+        const deleteButton = document.getElementById("delete-button");
+
+        const dueDate = new Date("2026-04-16T18:00:00Z");
+
+        function formatDueDate(date) {
+          return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }).format(date);
+        }
+
+        function pluralize(value, unit) {
+          return value === 1 ? unit : unit + "s";
+        }
+
+        function getTimeRemainingText(targetDate) {
+          const now = new Date();
+          const diffMs = targetDate.getTime() - now.getTime();
+          const absMs = Math.abs(diffMs);
+          const minutes = Math.floor(absMs / 60000);
+          const hours = Math.floor(absMs / 3600000);
+          const days = Math.floor(absMs / 86400000);
+
+          if (Math.abs(diffMs) < 60 * 1000) {
+            return "Due now!";
+          }
+
+          if (diffMs > 0) {
+            if (minutes < 60) {
+              return `Due in ${minutes} ${pluralize(minutes, "minute")}`;
+            }
+            if (hours < 24) {
+              return `Due in ${hours} ${pluralize(hours, "hour")}`;
+            }
+            if (days === 1) {
+              return "Due tomorrow";
+            }
+            return `Due in ${days} ${pluralize(days, "day")}`;
+          }
+
+          if (minutes < 60) {
+            return `Overdue by ${minutes} ${pluralize(minutes, "minute")}`;
+          }
+          if (hours < 24) {
+            return `Overdue by ${hours} ${pluralize(hours, "hour")}`;
+          }
+          return `Overdue by ${days} ${pluralize(days, "day")}`;
+        }
+
+        function updateTimeRemaining() {
+          timeRemainingEl.textContent = getTimeRemainingText(dueDate);
+        }
+
+        function setStatus(checked) {
+          if (checked) {
+            card.classList.add("completed");
+            statusBadge.textContent = "Done";
+            statusBadge.classList.remove("status-pending", "status-progress");
+            statusBadge.classList.add("status-done");
+            statusBadge.setAttribute("aria-label", "Status Done");
+          } else {
+            card.classList.remove("completed");
+            statusBadge.textContent = "Pending";
+            statusBadge.classList.remove("status-done", "status-progress");
+            statusBadge.classList.add("status-pending");
+            statusBadge.setAttribute("aria-label", "Status Pending");
+          }
+        }
+
+        toggle.addEventListener("change", function () {
+          setStatus(this.checked);
+        });
+
+        editButton.addEventListener("click", function () {
+          alert("edit clicked");
+        });
+
+        deleteButton.addEventListener("click", function () {
+          alert("Delete clicked");
+        });
+
+        dueDateEl.textContent = `Due ${formatDueDate(dueDate)}`;
+        dueDateEl.setAttribute("datetime", dueDate.toISOString());
+        updateTimeRemaining();
+        setStatus(false);
+
+        setInterval(updateTimeRemaining, 60000);
+      })();
+    </script>
+  </body>
+</html>

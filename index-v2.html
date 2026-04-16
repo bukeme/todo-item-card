@@ -495,14 +495,6 @@
       article.is-editing .view-state {
         opacity: 0.85;
       }
-      .time-remaining.is-overdue {
-        color: #b91c1c;
-        font-weight: 700;
-      }
-
-      [hidden] {
-        display: none !important;
-      }
 
       @media (min-width: 768px) {
         .edit-grid {
@@ -817,7 +809,6 @@
         const editDueDateInput = document.getElementById("edit-due-date");
         const saveButton = document.getElementById("save-button");
         const cancelButton = document.getElementById("cancel-button");
-        const contentHead = document.querySelector(".content-head.view-state");
 
         const state = {
           title:
@@ -954,20 +945,19 @@
 
           checkbox.checked = state.status === "Done";
           card.classList.toggle("is-completed", state.status === "Done");
+          card.classList.toggle("is-overdue", false);
 
           dueDateEl.textContent = `Due ${formatDueDate(state.dueDate)}`;
           dueDateEl.setAttribute("datetime", state.dueDate.toISOString());
 
-          const overdue =
+          const shouldShowOverdue =
             state.status !== "Done" && state.dueDate.getTime() < Date.now();
-          overdueIndicator.hidden = !overdue;
-          card.classList.toggle("is-overdue", overdue);
-          timeRemainingEl.classList.toggle("is-overdue", overdue);
+          overdueIndicator.hidden = !shouldShowOverdue;
+          card.classList.toggle("is-overdue", shouldShowOverdue);
 
           if (state.status === "Done") {
             timeRemainingEl.textContent = "Completed";
             overdueIndicator.hidden = true;
-            timeRemainingEl.classList.remove("is-overdue");
           } else {
             timeRemainingEl.textContent = getTimeRemainingText(state.dueDate);
           }
@@ -978,9 +968,11 @@
           expandToggle.setAttribute("aria-expanded", String(state.isExpanded));
           collapsiblePanel.dataset.collapsed = String(!state.isExpanded);
 
-          contentHead.hidden = state.isEditing;
-          collapsibleSection.hidden = state.isEditing;
-          editForm.hidden = !state.isEditing;
+          if (!isLongDescription) {
+            expandToggle.textContent = state.isExpanded
+              ? "Show less"
+              : "Show more";
+          }
         }
 
         function refreshTime() {
@@ -988,14 +980,12 @@
             timeRemainingEl.textContent = "Completed";
             overdueIndicator.hidden = true;
             card.classList.remove("is-overdue");
-            timeRemainingEl.classList.remove("is-overdue");
             return;
           }
 
           const overdue = state.dueDate.getTime() < Date.now();
           overdueIndicator.hidden = !overdue;
           card.classList.toggle("is-overdue", overdue);
-          timeRemainingEl.classList.toggle("is-overdue", overdue);
           timeRemainingEl.textContent = getTimeRemainingText(state.dueDate);
         }
 
@@ -1053,8 +1043,6 @@
           editPrioritySelect.value = state.priority;
           editDueDateInput.value = toDateTimeLocalValue(state.dueDate);
 
-          contentHead.hidden = true;
-          collapsibleSection.hidden = true;
           editForm.hidden = false;
           card.classList.add("is-editing");
 
@@ -1067,8 +1055,6 @@
         function closeEditMode(returnFocus = true) {
           state.isEditing = false;
           editForm.hidden = true;
-          contentHead.hidden = false;
-          collapsibleSection.hidden = false;
           card.classList.remove("is-editing");
 
           if (returnFocus) {
